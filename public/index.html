@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Quizzly AI — Test Your Knowledge</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="bg-scene">
+  <div class="bg-orb orb1"></div>
+  <div class="bg-orb orb2"></div>
+  <div class="bg-orb orb3"></div>
+  <div class="grid-overlay"></div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-logo">
+    <span class="logo-icon">⚡</span>
+    <span class="logo-text">Quizzly<span class="logo-accent">AI</span></span>
+  </div>
+  <div class="nav-links">
+    <button class="nav-btn active" onclick="showPage('home')" id="nav-home">🏠 Home</button>
+    <button class="nav-btn" onclick="showPage('dashboard')" id="nav-dashboard">📊 Dashboard</button>
+    <button class="nav-btn" onclick="showPage('profile')" id="nav-profile">👤 Profile</button>
+  </div>
+  <button class="theme-btn" onclick="toggleDark()" title="Toggle theme">
+    <span id="themeIcon">🌙</span>
+  </button>
+</nav>
+
+<main class="container">
+
+  <!-- ========== HOME PAGE ========== -->
+  <section id="page-home" class="page">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-badge">AI-Powered Quiz Engine</div>
+      <h1 class="hero-title">Challenge Your<br><span class="gradient-text">Knowledge</span></h1>
+      <p class="hero-sub">5 questions. Real AI feedback. Any topic you choose.</p>
+    </div>
+
+    <!-- QUIZ SETUP CARD -->
+    <div class="setup-card">
+      <h3 class="setup-title">Create Your Quiz</h3>
+
+      <!-- Custom topic input -->
+      <div class="custom-topic-row">
+        <div class="input-wrap">
+          <span class="input-icon">✏️</span>
+          <input type="text" id="customTopic" placeholder="Type any topic... e.g. World War 2, React Hooks, Astronomy" class="topic-input" oninput="onTopicInput()" />
+        </div>
+      </div>
+
+      <div class="divider"><span>or pick one</span></div>
+
+      <!-- Quick topic grid -->
+      <div class="topic-grid">
+        <div class="topic-card" onclick="pickTopic('JavaScript')" data-topic="JavaScript"><span class="topic-icon">🟨</span><span class="topic-name">JavaScript</span></div>
+        <div class="topic-card" onclick="pickTopic('HTML')" data-topic="HTML"><span class="topic-icon">🟧</span><span class="topic-name">HTML</span></div>
+        <div class="topic-card" onclick="pickTopic('CSS')" data-topic="CSS"><span class="topic-icon">🟦</span><span class="topic-name">CSS</span></div>
+        <div class="topic-card" onclick="pickTopic('Python')" data-topic="Python"><span class="topic-icon">🐍</span><span class="topic-name">Python</span></div>
+        <div class="topic-card" onclick="pickTopic('Science')" data-topic="Science"><span class="topic-icon">🔬</span><span class="topic-name">Science</span></div>
+        <div class="topic-card" onclick="pickTopic('History')" data-topic="History"><span class="topic-icon">📜</span><span class="topic-name">History</span></div>
+        <div class="topic-card" onclick="pickTopic('Mathematics')" data-topic="Mathematics"><span class="topic-icon">🔢</span><span class="topic-name">Maths</span></div>
+        <div class="topic-card" onclick="pickTopic('Geography')" data-topic="Geography"><span class="topic-icon">🌍</span><span class="topic-name">Geography</span></div>
+        <div class="topic-card" onclick="pickTopic('Movies')" data-topic="Movies"><span class="topic-icon">🎬</span><span class="topic-name">Movies</span></div>
+      </div>
+
+      <!-- Q count + start row -->
+      <div class="start-row">
+        <div class="qcount-wrap">
+          <label class="qcount-label">Questions</label>
+          <div class="qcount-btns">
+            <button class="qc-btn active" onclick="setQCount(5, this)">5</button>
+            <button class="qc-btn" onclick="setQCount(10, this)">10</button>
+            <button class="qc-btn" onclick="setQCount(15, this)">15</button>
+          </div>
+        </div>
+        <div class="selected-label" id="selectedLabel">No topic selected</div>
+        <button class="start-btn" id="startBtn" onclick="startQuiz()" disabled>
+          Start Quiz <span class="btn-arrow">→</span>
+        </button>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ========== QUIZ SCREEN ========== -->
+  <section id="page-quiz" class="page hidden">
+    <div class="quiz-header">
+      <div class="q-counter" id="questionCounter">Question 1 of 5</div>
+      <div class="q-topic-tag" id="quizTopicTag"></div>
+      <button class="quit-btn" onclick="quitQuiz()">✕ Quit</button>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress"></div>
+    </div>
+    <div class="question-card">
+      <div class="question-num" id="qNum">Q1</div>
+      <h2 class="question-text" id="question">Loading...</h2>
+    </div>
+    <div class="options-list" id="options"></div>
+    <div class="quiz-footer">
+      <button class="submit-btn" onclick="submitAnswer()" id="submitBtn">
+        Confirm Answer <span class="btn-arrow">→</span>
+      </button>
+      <div class="feedback-box" id="feedbackBox">
+        <p id="feedback"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== RESULT SCREEN ========== -->
+  <section id="page-result" class="page hidden">
+    <div class="result-header">
+      <div class="result-icon" id="resultIcon">🏆</div>
+      <h2 class="result-title">Quiz Complete!</h2>
+      <p class="result-score" id="scoreText"></p>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="chart"></canvas>
+    </div>
+    <div class="result-actions">
+      <button class="start-btn" onclick="showPage('home')">New Quiz <span class="btn-arrow">→</span></button>
+      <button class="outline-btn" onclick="showPage('dashboard')">View Stats 📊</button>
+    </div>
+  </section>
+
+  <!-- ========== DASHBOARD PAGE ========== -->
+  <section id="page-dashboard" class="page hidden">
+    <div class="page-header">
+      <h2 class="page-title">📊 Dashboard</h2>
+      <p class="page-sub">Your quiz performance at a glance</p>
+    </div>
+
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card"><div class="stat-val" id="stat-total">0</div><div class="stat-label">Quizzes Taken</div></div>
+      <div class="stat-card accent"><div class="stat-val" id="stat-avg">0%</div><div class="stat-label">Avg Score</div></div>
+      <div class="stat-card"><div class="stat-val" id="stat-best">0%</div><div class="stat-label">Best Score</div></div>
+      <div class="stat-card"><div class="stat-val" id="stat-topics">0</div><div class="stat-label">Topics Tried</div></div>
+    </div>
+
+    <div class="dash-section">
+      <h3 class="section-title">Score History</h3>
+      <div class="chart-wrap tall"><canvas id="historyChart"></canvas></div>
+    </div>
+
+    <div class="dash-section">
+      <h3 class="section-title">Recent Attempts</h3>
+      <div id="historyList" class="history-list"></div>
+    </div>
+
+    <div class="dash-section">
+      <button class="danger-btn" onclick="clearHistory()">🗑️ Clear All History</button>
+    </div>
+  </section>
+
+  <!-- ========== PROFILE PAGE ========== -->
+  <section id="page-profile" class="page hidden">
+    <div class="page-header">
+      <h2 class="page-title">👤 Profile</h2>
+      <p class="page-sub">Manage your account and preferences</p>
+    </div>
+
+    <div class="profile-card">
+      <div class="avatar-wrap">
+        <div class="avatar" id="avatarDisplay">?</div>
+        <div class="avatar-info">
+          <div class="profile-name" id="profileNameDisplay">Guest User</div>
+          <div class="profile-joined" id="profileJoined">Joined today</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-form-card">
+      <h3 class="form-title">Edit Profile</h3>
+      <div class="form-group">
+        <label class="form-label">Display Name</label>
+        <input type="text" id="profileName" class="form-input" placeholder="Enter your name" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Favourite Topic</label>
+        <input type="text" id="profileFavTopic" class="form-input" placeholder="e.g. JavaScript" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Default Question Count</label>
+        <select id="profileQCount" class="form-input">
+          <option value="5">5 Questions</option>
+          <option value="10">10 Questions</option>
+          <option value="15">15 Questions</option>
+        </select>
+      </div>
+      <button class="start-btn" onclick="saveProfile()" style="margin-top:8px">
+        Save Profile ✓
+      </button>
+    </div>
+
+    <div class="profile-form-card">
+      <h3 class="form-title">Achievements</h3>
+      <div id="achievementsList" class="achievements-grid"></div>
+    </div>
+
+  </section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
